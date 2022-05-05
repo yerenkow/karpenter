@@ -32,6 +32,8 @@ import (
 
 // EC2VMAvailableMemoryFactor assumes the EC2 VM will consume <7.25% of the memory of a given machine
 const EC2VMAvailableMemoryFactor = .925
+// Reserve fixed size for kubernetes needs
+const EC2VMReservedMemory = 805
 
 type InstanceType struct {
 	ec2.InstanceTypeInfo
@@ -130,7 +132,7 @@ func (i *InstanceType) cpu() resource.Quantity {
 func (i *InstanceType) memory() resource.Quantity {
 	return *resources.Quantity(
 		fmt.Sprintf("%dMi", int32(
-			float64(*i.MemoryInfo.SizeInMiB)*EC2VMAvailableMemoryFactor,
+			float64(*i.MemoryInfo.SizeInMiB - EC2VMReservedMemory),
 		)),
 	)
 }
